@@ -1,0 +1,28 @@
+{
+  "devDependencies": {
+    "@types/node": "^18.11.18",
+    "typescript": "^4.9.4"
+  },
+  "name": "dexclient-fetcher",
+  "description": "DEX client fetcher",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aymantaybi/dexclient-fetcher.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/aymantaybi/dexclient-fetcher/issues"
+  },
+  "homepage": "https://github.com/aymantaybi/dexclient-fetcher#readme",
+  "dependencies": {
+    "web3": "^1.8.1"
+  }
+}

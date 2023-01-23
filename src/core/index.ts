@@ -11,7 +11,11 @@ export default class {
     this.web3 = new Web3(this.WebsocketProvider);
   }
 
-  async addErc20Token(address: string) {
+  async erc20(address: string) {
+
+  }
+
+  async pair(address: string) {
 
   }
 }

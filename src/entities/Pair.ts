@@ -23,7 +23,7 @@ export default class implements BaseEntity {
       this.contract.methods.token1().call,
       this.contract.methods.getReserves().call,
     ];
-    for (var method of methods) {
+    for (const method of methods) {
       batch.add(method);
     }
     const [symbol, token0, token1, getReserves]: [string, string, string, any] = await executeAsync(batch);

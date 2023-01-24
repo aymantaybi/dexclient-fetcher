@@ -17,7 +17,7 @@ export default class implements BaseEntity {
   async initialize() {
     const batch = new this.web3.BatchRequest();
     const methods = [this.contract.methods.symbol().call, this.contract.methods.decimals().call];
-    for (var method of methods) {
+    for (const method of methods) {
       batch.add(method);
     }
     const [symbol, decimals]: [string, string] = await executeAsync(batch);

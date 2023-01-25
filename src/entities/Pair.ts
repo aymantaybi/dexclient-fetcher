@@ -3,7 +3,7 @@ import { AbiItem } from "web3-utils";
 import { Contract } from "web3-eth-contract";
 import { BaseEntity, Reserves } from "../interfaces";
 import PairABI from "../samples/contracts/Pair.json";
-import { executeAsync } from "../helpers/asyncBatch";
+import { executeAsync } from "../helpers";
 import EventEmitter from "events";
 
 export default class implements BaseEntity {

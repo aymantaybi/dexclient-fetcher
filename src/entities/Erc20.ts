@@ -3,7 +3,7 @@ import { AbiItem } from "web3-utils";
 import { Contract } from "web3-eth-contract";
 import { BaseEntity } from "../interfaces";
 import Erc20ABI from "../samples/contracts/Erc20.json";
-import { executeAsync } from "../helpers/asyncBatch";
+import { executeAsync } from "../helpers";
 
 export default class implements BaseEntity {
   web3: Web3;

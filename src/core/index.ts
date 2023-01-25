@@ -1,9 +1,8 @@
 import Web3 from "web3";
 import { WebsocketProvider } from "web3-providers-ws";
 import { BlockTransactionObject } from "web3-eth";
-import { executeAsync } from "../helpers/asyncBatch";
+import { executeAsync, isFetcherConstructorWebsocketProvider, isFetcherConstructorWebsocketProviderHost } from "../helpers";
 import { FetcherConstructor } from "../interfaces";
-import { isFetcherConstructorWebsocketProvider, isFetcherConstructorWebsocketProviderHost } from "../helpers";
 
 export default class {
   websocketProvider: WebsocketProvider | undefined;

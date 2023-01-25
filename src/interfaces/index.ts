@@ -17,3 +17,9 @@ export interface BaseEntity {
   contract: Contract;
   initialize: () => Promise<unknown>;
 }
+
+export interface Reserves {
+  blockTimestampLast: string;
+  reserve0: string;
+  reserve1: string;
+}

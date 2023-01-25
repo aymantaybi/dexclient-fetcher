@@ -46,7 +46,7 @@ describe("Pair", () => {
     expect(BnxBusdPair.symbol).toEqual("Cake-LP");
     expect(BnxBusdPair.token0).toEqual("0x8C851d1a123Ff703BD1f9dabe631b69902Df5f97");
     expect(BnxBusdPair.token1).toEqual("0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56");
-    expect(BnxBusdPair.getReserves).toEqual({
+    expect(BnxBusdPair.reserves).toEqual({
       "0": "158316285352958847168441",
       "1": "13918328525777256275824294",
       "2": "1674649798",

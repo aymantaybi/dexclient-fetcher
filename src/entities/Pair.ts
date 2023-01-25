@@ -1,7 +1,7 @@
 import Web3 from "web3";
 import { AbiItem } from "web3-utils";
 import { Contract } from "web3-eth-contract";
-import { BaseEntity } from "../interfaces";
+import { BaseEntity, Reserves } from "../interfaces";
 import PairABI from "../samples/contracts/Pair.json";
 import { executeAsync } from "../helpers/asyncBatch";
 import EventEmitter from "events";
@@ -13,11 +13,7 @@ export default class implements BaseEntity {
   symbol!: string;
   token0!: string;
   token1!: string;
-  getReserves!: {
-    blockTimestampLast: string;
-    reserve0: string;
-    reserve1: string;
-  };
+  reserves!: Reserves;
   constructor(web3: Web3, address: string) {
     this.web3 = web3;
     this.address = address;
@@ -34,8 +30,8 @@ export default class implements BaseEntity {
     for (const method of methods) {
       batch.add(method);
     }
-    const [symbol, token0, token1, getReserves]: [string, string, string, any] = await executeAsync(batch);
-    [this.symbol, this.token0, this.token1, this.getReserves] = [symbol, token0, token1, getReserves];
-    return { symbol, token0, token1, getReserves };
+    const [symbol, token0, token1, reserves]: [string, string, string, Reserves] = await executeAsync(batch);
+    [this.symbol, this.token0, this.token1, this.reserves] = [symbol, token0, token1, reserves];
+    return { symbol, token0, token1, reserves };
   }
 }

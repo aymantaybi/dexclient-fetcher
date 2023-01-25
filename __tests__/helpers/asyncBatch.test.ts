@@ -14,7 +14,6 @@ import Web3 from "web3";
 import { executeAsync } from "../../src/helpers/asyncBatch";
 
 const { HTTP_PROVIDER } = process.env;
-
 const web3 = new Web3(HTTP_PROVIDER!);
 
 describe("asyncBatch", () => {

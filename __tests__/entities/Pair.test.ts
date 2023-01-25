@@ -35,7 +35,6 @@ import Web3 from "web3";
 import Pair from "../../src/entities/Pair";
 
 const { HTTP_PROVIDER } = process.env;
-
 const web3 = new Web3(HTTP_PROVIDER!);
 
 describe("Pair", () => {

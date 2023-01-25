@@ -24,7 +24,6 @@ import Web3 from "web3";
 import Erc20 from "../../src/entities/Erc20";
 
 const { HTTP_PROVIDER } = process.env;
-
 const web3 = new Web3(HTTP_PROVIDER!);
 
 describe("Erc20", () => {

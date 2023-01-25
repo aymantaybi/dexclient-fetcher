@@ -1,13 +1,9 @@
-import { FetcherConstructorWebsocketProvider, FetcherConstructorWebsocketProviderHost } from "../interfaces";
+import { FetcherConstructor, FetcherConstructorWebsocketProvider, FetcherConstructorWebsocketProviderHost } from "../interfaces";
 
-export function isFetcherConstructorWebsocketProvider(
-  obj: FetcherConstructorWebsocketProvider | FetcherConstructorWebsocketProviderHost
-): obj is FetcherConstructorWebsocketProvider {
+export function isFetcherConstructorWebsocketProvider(obj: FetcherConstructor): obj is FetcherConstructorWebsocketProvider {
   return (<FetcherConstructorWebsocketProvider>obj).websocketProvider !== undefined;
 }
 
-export function isFetcherConstructorWebsocketProviderHost(
-  obj: FetcherConstructorWebsocketProvider | FetcherConstructorWebsocketProviderHost
-): obj is FetcherConstructorWebsocketProviderHost {
+export function isFetcherConstructorWebsocketProviderHost(obj: FetcherConstructor): obj is FetcherConstructorWebsocketProviderHost {
   return (<FetcherConstructorWebsocketProviderHost>obj).websocketProviderHost !== undefined;
 }

@@ -10,10 +10,14 @@ export default class implements BaseEntity {
   web3: Web3;
   address: string;
   contract: Contract;
-  symbol: string | undefined;
-  token0: string | undefined;
-  token1: string | undefined;
-  getReserves: any | undefined;
+  symbol!: string;
+  token0!: string;
+  token1!: string;
+  getReserves!: {
+    blockTimestampLast: string;
+    reserve0: string;
+    reserve1: string;
+  };
   constructor(web3: Web3, address: string) {
     this.web3 = web3;
     this.address = address;

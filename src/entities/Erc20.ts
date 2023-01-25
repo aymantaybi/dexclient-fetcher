@@ -9,8 +9,8 @@ export default class implements BaseEntity {
   web3: Web3;
   address: string;
   contract: Contract;
-  symbol: string | undefined;
-  decimals: string | undefined;
+  symbol!: string;
+  decimals!: string;
   constructor(web3: Web3, address: string) {
     this.web3 = web3;
     this.address = address;

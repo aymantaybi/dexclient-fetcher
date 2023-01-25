@@ -6,7 +6,6 @@ export function executeAsync(batch: any): any {
     const requests = batch.requests;
     const sortResponses = batch._sortResponses.bind(batch);
     const formattedResults: unknown[] = [];
-    const unsuccessfulRequests: any[] = [];
     batch.requestManager.sendBatch(requests, async function (err, results) {
       results = sortResponses(results);
       requests
@@ -30,10 +29,8 @@ export function executeAsync(batch: any): any {
           if (Jsonrpc.isValidResponse(result)) {
             return formattedResults.push(requests[index].format ? requests[index].format(result.result) : result.result);
           }
-          unsuccessfulRequests.push(requests[index]);
         });
-      const unsuccessfulRequestsNewResults = unsuccessfulRequests.length ? await executeAsync({ ...batch, requests: unsuccessfulRequests }) : [];
-      resolve([...formattedResults, ...unsuccessfulRequestsNewResults]);
+      resolve(formattedResults);
     });
   });
 }

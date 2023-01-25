@@ -8,7 +8,6 @@ export default class {
   websocketProvider: WebsocketProvider | undefined;
   web3: Web3;
   chainId!: number;
-  block!: BlockTransactionObject;
   constructor(fetcherConstructor: FetcherConstructor) {
     if (isFetcherConstructorWebsocketProvider(fetcherConstructor)) {
       const { websocketProvider } = fetcherConstructor;
@@ -22,14 +21,9 @@ export default class {
   }
 
   async initialize() {
-    const batch = new this.web3.BatchRequest();
-    const methods = [(this.web3.eth.getChainId as any).request(), (this.web3.eth.getBlock as any).request("latest", true)];
-    for (const method of methods) {
-      batch.add(method);
-    }
-    const [chainId, block]: [number, BlockTransactionObject] = await executeAsync(batch);
-    [this.chainId, this.block] = [chainId, block];
-    return { chainId, block };
+    const chainId = await this.web3.eth.getChainId();
+    this.chainId = chainId;
+    return { chainId };
   }
 
   async erc20(address: string) {}

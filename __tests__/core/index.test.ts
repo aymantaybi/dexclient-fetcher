@@ -1,3 +1,6 @@
+const errors = require("web3-core-helpers").errors;
+const Jsonrpc = require("web3-core-requestmanager/src/jsonrpc.js");
+
 jest.mock("web3-providers-ws", () => {
   const originalModule = jest.requireActual("web3-providers-ws");
   originalModule.prototype.connect = () => {};
@@ -7,39 +10,15 @@ jest.mock("web3-providers-ws", () => {
 jest.mock("web3-core-requestmanager", () => {
   const originalModule = jest.requireActual("web3-core-requestmanager");
   const { Manager, BatchManager } = originalModule;
-  Manager.prototype.sendBatch = function (data, callback) {
-    const results = [
-      { jsonrpc: "2.0", id: 1, result: "0x7e4" },
-      {
-        jsonrpc: "2.0",
-        id: 2,
-        result: {
-          difficulty: "0x7",
-          extraData:
-            "0xd683020400846765746886676f312e3137856c696e7578000000000000000000d4f5a4a1c52cd6e554ecaa2868dd986c175127725cb123dbfd865e6cd8d3d763710aad6db65c069df87532214cc1b76a98cd80319f3a88768c9421e0e5766c2800",
-          gasLimit: "0x5f5e100",
-          gasUsed: "0x0",
-          hash: "0x7cec4370dbbfd5b88bc7915aac99516545523facc9ad1b5489286293e1e436ab",
-          logsBloom:
-            "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          miner: "0xee11d2016e9f2fae606b2f12986811f4abbe6215",
-          mixHash: "0x0000000000000000000000000000000000000000000000000000000000000000",
-          nonce: "0x0000000000000000",
-          number: "0x13ff321",
-          parentHash: "0xc8c79a646c8b058574105026a92ca32a7a77fd1270a272e4b0195e18e802e555",
-          receiptsRoot: "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
-          sha3Uncles: "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
-          size: "0x263",
-          stateRoot: "0x24a8ec45a9b357230494a7bf7d3423afed171473539bca3d79890fee58267aa4",
-          timestamp: "0x63d1600a",
-          totalDifficulty: "0x89dc18e",
-          transactions: [],
-          transactionsRoot: "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
-          uncles: [],
-        },
-      },
-    ];
-    callback(null, results);
+  Manager.prototype.send = function (data, callback) {
+    callback = callback || function () {};
+    if (!this.provider) {
+      return callback(errors.InvalidProvider());
+    }
+    const { method, params } = data;
+    const jsonrpcPayload = Jsonrpc.toPayload(method, params);
+    const jsonrpcResultCallback = this._jsonrpcResultCallback(callback, jsonrpcPayload);
+    jsonrpcResultCallback(null, { jsonrpc: "2.0", id: jsonrpcPayload.id, result: "0x7e4" });
   };
   return { Manager, BatchManager };
 });
@@ -56,29 +35,5 @@ describe("Core", () => {
     const core = new Core({ websocketProvider });
     await core.initialize();
     expect(core.chainId).toEqual(2020);
-    expect(core.block).toEqual({
-      difficulty: "7",
-      extraData:
-        "0xd683020400846765746886676f312e3137856c696e7578000000000000000000d4f5a4a1c52cd6e554ecaa2868dd986c175127725cb123dbfd865e6cd8d3d763710aad6db65c069df87532214cc1b76a98cd80319f3a88768c9421e0e5766c2800",
-      gasLimit: 100000000,
-      gasUsed: 0,
-      hash: "0x7cec4370dbbfd5b88bc7915aac99516545523facc9ad1b5489286293e1e436ab",
-      logsBloom:
-        "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-      miner: "0xEE11d2016e9f2faE606b2F12986811F4abbe6215",
-      mixHash: "0x0000000000000000000000000000000000000000000000000000000000000000",
-      nonce: "0x0000000000000000",
-      number: 20968225,
-      parentHash: "0xc8c79a646c8b058574105026a92ca32a7a77fd1270a272e4b0195e18e802e555",
-      receiptsRoot: "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
-      sha3Uncles: "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
-      size: 611,
-      stateRoot: "0x24a8ec45a9b357230494a7bf7d3423afed171473539bca3d79890fee58267aa4",
-      timestamp: 1674665994,
-      totalDifficulty: "144556430",
-      transactions: [],
-      transactionsRoot: "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
-      uncles: [],
-    });
   }, 0);
 });

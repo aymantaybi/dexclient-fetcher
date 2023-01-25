@@ -10,6 +10,10 @@ export default class implements BaseEntity {
   web3: Web3;
   address: string;
   contract: Contract;
+  symbol: string | undefined;
+  token0: string | undefined;
+  token1: string | undefined;
+  getReserves: any | undefined;
   constructor(web3: Web3, address: string) {
     this.web3 = web3;
     this.address = address;
@@ -18,15 +22,16 @@ export default class implements BaseEntity {
   async initialize() {
     const batch = new this.web3.BatchRequest();
     const methods = [
-      this.contract.methods.symbol().call,
-      this.contract.methods.token0().call,
-      this.contract.methods.token1().call,
-      this.contract.methods.getReserves().call,
+      this.contract.methods.symbol().call.request(),
+      this.contract.methods.token0().call.request(),
+      this.contract.methods.token1().call.request(),
+      this.contract.methods.getReserves().call.request(),
     ];
     for (const method of methods) {
       batch.add(method);
     }
     const [symbol, token0, token1, getReserves]: [string, string, string, any] = await executeAsync(batch);
+    [this.symbol, this.token0, this.token1, this.getReserves] = [symbol, token0, token1, getReserves];
     return { symbol, token0, token1, getReserves };
   }
 }

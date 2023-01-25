@@ -9,6 +9,8 @@ export default class implements BaseEntity {
   web3: Web3;
   address: string;
   contract: Contract;
+  symbol: string | undefined;
+  decimals: string | undefined;
   constructor(web3: Web3, address: string) {
     this.web3 = web3;
     this.address = address;
@@ -16,11 +18,12 @@ export default class implements BaseEntity {
   }
   async initialize() {
     const batch = new this.web3.BatchRequest();
-    const methods = [this.contract.methods.symbol().call, this.contract.methods.decimals().call];
+    const methods = [this.contract.methods.symbol().call.request(), this.contract.methods.decimals().call.request()];
     for (const method of methods) {
       batch.add(method);
     }
     const [symbol, decimals]: [string, string] = await executeAsync(batch);
+    [this.symbol, this.decimals] = [symbol, decimals];
     return { symbol, decimals };
   }
 }

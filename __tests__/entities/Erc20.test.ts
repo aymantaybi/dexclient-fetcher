@@ -1,24 +1,4 @@
-jest.mock("web3-core-requestmanager", () => {
-  const originalModule = jest.requireActual("web3-core-requestmanager");
-  const { Manager, BatchManager } = originalModule;
-  Manager.prototype.sendBatch = function (data, callback) {
-    const results = [
-      {
-        jsonrpc: "2.0",
-        id: 1,
-        result:
-          "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000044255534400000000000000000000000000000000000000000000000000000000",
-      },
-      {
-        jsonrpc: "2.0",
-        id: 2,
-        result: "0x0000000000000000000000000000000000000000000000000000000000000012",
-      },
-    ];
-    callback(null, results);
-  };
-  return { Manager, BatchManager };
-});
+jest.mock("web3-core-requestmanager");
 
 import Web3 from "web3";
 import Erc20 from "../../src/entities/Erc20";

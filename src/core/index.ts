@@ -3,6 +3,7 @@ import { WebsocketProvider } from "web3-providers-ws";
 import { BlockTransactionObject } from "web3-eth";
 import { executeAsync, isFetcherConstructorWebsocketProvider, isFetcherConstructorWebsocketProviderHost } from "../helpers";
 import { FetcherConstructor } from "../interfaces";
+import Erc20 from "../entities/Erc20";
 
 export default class {
   websocketProvider: WebsocketProvider | undefined;
@@ -26,7 +27,11 @@ export default class {
     return { chainId };
   }
 
-  async erc20(address: string) {}
+  async erc20(address: string) {
+    const token = new Erc20(this.web3, address);
+    await token.initialize();
+    return token;
+  }
 
   async pair(address: string) {}
 }

@@ -1,5 +1,6 @@
 const errors = require("web3-core-helpers").errors;
 const Jsonrpc = require("web3-core-requestmanager/src/jsonrpc.js");
+const { callbackify } = require("util");
 
 const originalModule = jest.requireActual("web3-core-requestmanager");
 
@@ -68,14 +69,36 @@ Manager.prototype.sendBatch = function (data, callback) {
 };
 
 Manager.prototype.send = function (data, callback) {
-  callback = callback || function () {};
-  if (!this.provider) {
-    return callback(errors.InvalidProvider());
+  if (data.method !== "eth_chainId") {
+    callback = callback || function () {};
+    if (!this.provider) {
+      return callback(errors.InvalidProvider());
+    }
+    const { method, params } = data;
+    const jsonrpcPayload = Jsonrpc.toPayload(method, params);
+    const jsonrpcResultCallback = this._jsonrpcResultCallback(callback, jsonrpcPayload);
+    if (this.provider.request) {
+      const callbackRequest = callbackify(this.provider.request.bind(this.provider));
+      const requestArgs = { method, params };
+      callbackRequest(requestArgs, callback);
+    } else if (this.provider.sendAsync) {
+      this.provider.sendAsync(jsonrpcPayload, jsonrpcResultCallback);
+    } else if (this.provider.send) {
+      this.provider.send(jsonrpcPayload, jsonrpcResultCallback);
+    } else {
+      throw new Error("Provider does not have a request or send method to use.");
+    }
+  } else {
+    callback = callback || function () {};
+    const { method, params } = data;
+    const jsonrpcPayload = Jsonrpc.toPayload(method, params);
+    const jsonrpcResultCallback = this._jsonrpcResultCallback(callback, jsonrpcPayload);
+    jsonrpcResultCallback(null, { jsonrpc: "2.0", id: jsonrpcPayload.id, result: "0x7e4" });
   }
-  const { method, params } = data;
-  const jsonrpcPayload = Jsonrpc.toPayload(method, params);
-  const jsonrpcResultCallback = this._jsonrpcResultCallback(callback, jsonrpcPayload);
-  jsonrpcResultCallback(null, { jsonrpc: "2.0", id: jsonrpcPayload.id, result: "0x7e4" });
 };
+
+/* function (data, callback) {
+  
+}; */
 
 export { Manager, BatchManager };

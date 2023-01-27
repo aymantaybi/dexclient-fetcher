@@ -21,6 +21,7 @@ describe("Core", () => {
     expect(busdToken.address).toEqual(busdAddress);
     expect(busdToken.symbol).toEqual("BUSD");
     expect(busdToken.decimals).toEqual("18");
+    expect(core.tokens.some((token) => token.address === busdAddress)).toBeTruthy();
   }, 0);
   it("should add a Pair", async () => {
     const BnxBusdAddress = "0xB72723e36a83FB5Fe1793f06b436F4720F5DE4F9";
@@ -37,5 +38,6 @@ describe("Core", () => {
       reserve0: "158316285352958847168441",
       reserve1: "13918328525777256275824294",
     });
+    expect(core.pairs.some((pair) => pair.address === BnxBusdAddress)).toBeTruthy();
   }, 0);
 });

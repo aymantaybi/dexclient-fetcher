@@ -9,6 +9,8 @@ export default class {
   websocketProvider: WebsocketProvider | undefined;
   web3: Web3;
   chainId!: number;
+  tokens: Erc20[] = [];
+  pairs: Pair[] = [];
   constructor(fetcherConstructor: FetcherConstructor) {
     if (isFetcherConstructorWebsocketProvider(fetcherConstructor)) {
       const { websocketProvider } = fetcherConstructor;
@@ -28,14 +30,20 @@ export default class {
   }
 
   async erc20(address: string) {
+    const tokenIndex = this.tokens.findIndex((token) => token.address === address);
+    if (tokenIndex > -1) return this.tokens[tokenIndex];
     const token = new Erc20(this.web3, address);
     await token.initialize();
+    this.tokens.push(token);
     return token;
   }
 
   async pair(address: string) {
+    const pairIndex = this.pairs.findIndex((pair) => pair.address === address);
+    if (pairIndex > -1) return this.pairs[pairIndex];
     const pair = new Pair(this.web3, address);
     await pair.initialize();
+    this.pairs.push(pair);
     return pair;
   }
 }

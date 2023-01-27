@@ -30,8 +30,8 @@ export default class implements BaseEntity {
     for (const method of methods) {
       batch.add(method);
     }
-    const [symbol, token0, token1, reserves]: [string, string, string, Reserves] = await executeAsync(batch);
-    [this.symbol, this.token0, this.token1, this.reserves] = [symbol, token0, token1, reserves];
-    return { symbol, token0, token1, reserves };
+    const [symbol, token0, token1, { blockTimestampLast, reserve0, reserve1 }]: [string, string, string, Reserves] = await executeAsync(batch);
+    [this.symbol, this.token0, this.token1, this.reserves] = [symbol, token0, token1, { blockTimestampLast, reserve0, reserve1 }];
+    return { symbol, token0, token1, reserves: this.reserves };
   }
 }

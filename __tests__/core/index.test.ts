@@ -1,4 +1,8 @@
-jest.mock("web3-providers-ws");
+jest.mock("web3-providers-ws", () => {
+  const originalModule = jest.requireActual("web3-providers-ws");
+  return originalModule;
+});
+
 jest.mock("web3-core-requestmanager");
 
 import Web3 from "web3";
@@ -40,4 +44,12 @@ describe("Core", () => {
     });
     expect(core.pairs.some((pair) => pair.address === BnxBusdAddress)).toBeTruthy();
   }, 0);
+  it("should subscribe to new block headers and return the full block object on every new block header", (done) => {
+    core.subscribe();
+    core.on("newBlock", (block) => {
+      websocketProvider.disconnect();
+      done();
+      expect(block).not.toBeUndefined();
+    });
+  }, 60000);
 });

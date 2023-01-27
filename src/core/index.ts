@@ -1,17 +1,22 @@
 import Web3 from "web3";
 import { WebsocketProvider } from "web3-providers-ws";
+import { Subscription } from "web3-core-subscriptions";
+import { BlockHeader } from "web3-eth";
 import { isFetcherConstructorWebsocketProvider, isFetcherConstructorWebsocketProviderHost } from "../helpers";
 import { FetcherConstructor } from "../interfaces";
 import Erc20 from "../entities/Erc20";
 import Pair from "../entities/Pair";
+import EventEmitter from "events";
 
-export default class {
+export default class extends EventEmitter {
   websocketProvider: WebsocketProvider | undefined;
   web3: Web3;
   chainId!: number;
   tokens: Erc20[] = [];
   pairs: Pair[] = [];
+  subscription: Subscription<BlockHeader> | undefined;
   constructor(fetcherConstructor: FetcherConstructor) {
+    super();
     if (isFetcherConstructorWebsocketProvider(fetcherConstructor)) {
       const { websocketProvider } = fetcherConstructor;
       this.websocketProvider = websocketProvider;
@@ -27,6 +32,14 @@ export default class {
     const chainId = await this.web3.eth.getChainId();
     this.chainId = chainId;
     return { chainId };
+  }
+
+  subscribe() {
+    this.subscription = this.web3.eth.subscribe("newBlockHeaders");
+    this.subscription.on("data", async (data) => {
+      const block = await this.web3.eth.getBlock(data.number, true);
+      this.emit("newBlock", block);
+    });
   }
 
   async erc20(address: string) {

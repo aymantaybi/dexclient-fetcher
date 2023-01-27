@@ -1,9 +1,9 @@
 import Web3 from "web3";
 import { WebsocketProvider } from "web3-providers-ws";
-import { BlockTransactionObject } from "web3-eth";
-import { executeAsync, isFetcherConstructorWebsocketProvider, isFetcherConstructorWebsocketProviderHost } from "../helpers";
+import { isFetcherConstructorWebsocketProvider, isFetcherConstructorWebsocketProviderHost } from "../helpers";
 import { FetcherConstructor } from "../interfaces";
 import Erc20 from "../entities/Erc20";
+import Pair from "../entities/Pair";
 
 export default class {
   websocketProvider: WebsocketProvider | undefined;
@@ -33,5 +33,9 @@ export default class {
     return token;
   }
 
-  async pair(address: string) {}
+  async pair(address: string) {
+    const pair = new Pair(this.web3, address);
+    await pair.initialize();
+    return pair;
+  }
 }

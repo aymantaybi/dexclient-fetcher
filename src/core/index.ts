@@ -3,7 +3,7 @@ import { WebsocketProvider } from "web3-providers-ws";
 import { Subscription } from "web3-core-subscriptions";
 import { BlockHeader } from "web3-eth";
 import { isFetcherConstructorWebsocketProvider, isFetcherConstructorWebsocketProviderHost } from "../helpers";
-import { FetcherConstructor } from "../interfaces";
+import { FetcherConstructor, FetcherSubscriptions } from "../interfaces";
 import Erc20 from "../entities/Erc20";
 import Pair from "../entities/Pair";
 import EventEmitter from "events";
@@ -35,11 +35,11 @@ export default class extends EventEmitter {
   }
 
   subscribe() {
-    this.subscription = this.web3.eth.subscribe("newBlockHeaders");
-    this.subscription.on("data", async (data) => {
-      const block = await this.web3.eth.getBlock(data.number, true);
+    const callback = async (error, blockHeader: BlockHeader) => {
+      const block = await this.web3.eth.getBlock(blockHeader.number, true);
       this.emit("newBlock", block);
-    });
+    };
+    this.subscription = this.web3.eth.subscribe("newBlockHeaders", callback);
   }
 
   async erc20(address: string) {

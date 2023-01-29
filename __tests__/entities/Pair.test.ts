@@ -32,11 +32,6 @@ describe("Pair", () => {
     expect(slpWethPair.symbol).toEqual("SLP-WETH");
     expect(slpWethPair.token0).toEqual("0xa8754b9Fa15fc18BB59458815510E40a12cD2014");
     expect(slpWethPair.token1).toEqual("0xc99a6A985eD2Cac1ef41640596C5A5f9F4E19Ef5");
-    expect(slpWethPair.reserves).toEqual({
-      blockTimestampLast: "1674853335",
-      reserve0: "2017043775",
-      reserve1: "4034978415800246540142",
-    });
   }, 0);
   it("should subscribe to sync event", (done) => {
     slpWethPair.on("reservesUpdate", (data) => {

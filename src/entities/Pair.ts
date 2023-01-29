@@ -1,7 +1,7 @@
 import Web3 from "web3";
 import { AbiItem } from "web3-utils";
 import { Contract } from "web3-eth-contract";
-import { BaseEntity, Reserves } from "../interfaces";
+import { BaseEntity } from "../interfaces";
 import PairABI from "../samples/contracts/Pair.json";
 import { executeAsync } from "../helpers";
 import EventEmitter from "events";
@@ -15,7 +15,6 @@ export default class extends EventEmitter implements BaseEntity {
   symbol!: string;
   token0!: string;
   token1!: string;
-  reserves!: Reserves;
   subscription: Subscription<Log> | undefined;
   constructor(web3: Web3, address: string) {
     super();
@@ -28,16 +27,15 @@ export default class extends EventEmitter implements BaseEntity {
     const methods = [
       this.contract.methods.symbol().call.request(),
       this.contract.methods.token0().call.request(),
-      this.contract.methods.token1().call.request(),
-      this.contract.methods.getReserves().call.request(),
+      this.contract.methods.token1().call.request()
     ];
     for (const method of methods) {
       batch.add(method);
     }
-    const [symbol, token0, token1, { blockTimestampLast, reserve0, reserve1 }]: [string, string, string, Reserves] = await executeAsync(batch);
-    [this.symbol, this.token0, this.token1, this.reserves] = [symbol, token0, token1, { blockTimestampLast, reserve0, reserve1 }];
+    const [symbol, token0, token1]: [string, string, string] = await executeAsync(batch);
+    [this.symbol, this.token0, this.token1] = [symbol, token0, token1];
     this.subscribe();
-    return { symbol, token0, token1, reserves: this.reserves };
+    return { symbol, token0, token1 };
   }
 
   private subscribe() {

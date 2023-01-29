@@ -52,11 +52,6 @@ describe("Core", () => {
     expect(BnxBusdPair.symbol).toEqual("Cake-LP");
     expect(BnxBusdPair.token0).toEqual("0x8C851d1a123Ff703BD1f9dabe631b69902Df5f97");
     expect(BnxBusdPair.token1).toEqual("0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56");
-    expect(BnxBusdPair.reserves).toEqual({
-      blockTimestampLast: "1674649798",
-      reserve0: "158316285352958847168441",
-      reserve1: "13918328525777256275824294",
-    });
     expect(core.pairs.some((pair) => pair.address === BnxBusdAddress)).toBeTruthy();
   }, 0);
   it("should subscribe to new block headers and return the full block object on every new block header", (done) => {

@@ -3,7 +3,7 @@ import { WebsocketProvider } from "web3-providers-ws";
 import { Subscription } from "web3-core-subscriptions";
 import { BlockHeader } from "web3-eth";
 import { isFetcherConstructorWebsocketProvider, isFetcherConstructorWebsocketProviderHost } from "../helpers";
-import { FetcherConstructor, FetcherSubscriptions } from "../interfaces";
+import { FetcherConstructor } from "../interfaces";
 import Erc20 from "../entities/Erc20";
 import Pair from "../entities/Pair";
 import EventEmitter from "events";

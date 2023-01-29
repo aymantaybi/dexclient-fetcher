@@ -162,26 +162,48 @@ const blockExemple = {
 };
 
 Manager.prototype.sendBatch = function (data, callback) {
+  //console.log(JSON.stringify(data, null, 4));
+  //original implementation
+
+  /* if (!this.provider) {
+    return callback(errors.InvalidProvider());
+  }
+  var payload = Jsonrpc.toBatchPayload(data);
+  this.provider[this.provider.sendAsync ? "sendAsync" : "send"](payload, function (err, results) {
+    console.log(results);
+    if (err) {
+      return callback(err);
+    }
+
+    if (!Array.isArray(results)) {
+      return callback(errors.InvalidResponse(results));
+    }
+
+    callback(null, results);
+  }); */
+
+  //mock implementation
+
   const results = data.map((request, index) => {
     const jsonrpc = "2.0";
     const id = index + 1;
     if (request.method == "eth_chainId") return { jsonrpc, id, result: "0x38" };
     if (request.method == "eth_call") {
       if (request.params[1] === "latest") {
-        if (request.params[0].to === "0xe9e7cea3dedca5984780bafc599bd69add087d56") {
+        if (request.params[0].to === "0xa8754b9fa15fc18bb59458815510e40a12cd2014") {
           if (request.params[0].data === "0x95d89b41") {
             return {
               jsonrpc,
               id,
               result:
-                "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000044255534400000000000000000000000000000000000000000000000000000000",
+                "0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000003534c500000000000000000000000000000000000000000000000000000000000",
             };
           }
           if (request.params[0].data === "0x313ce567") {
             return {
               jsonrpc,
               id,
-              result: "0x0000000000000000000000000000000000000000000000000000000000000012",
+              result: "0x0000000000000000000000000000000000000000000000000000000000000000",
             };
           }
         }
@@ -256,6 +278,8 @@ Manager.prototype.sendBatch = function (data, callback) {
 };
 
 Manager.prototype.send = function (data, callback) {
+  //mock implementation
+
   if (data.method === "eth_chainId") {
     callback = callback || function () {};
     const { method, params } = data;
@@ -275,7 +299,21 @@ Manager.prototype.send = function (data, callback) {
     jsonrpcResultCallback(null, { ...blockExemple, id: jsonrpcPayload.id });
     return;
   }
-  //////
+  if (data.method === "eth_call") {
+    if (data.params[0].data === "0x70a08231000000000000000000000000c1eb47de5d549d45a871e32d9d082e7ac5d2e3ed") {
+      callback = callback || function () {};
+      const { method, params } = data;
+      const jsonrpcPayload = Jsonrpc.toPayload(method, params);
+      const jsonrpcResultCallback = this._jsonrpcResultCallback(callback, jsonrpcPayload);
+      jsonrpcResultCallback(null, {
+        jsonrpc: "2.0",
+        id: jsonrpcPayload.id,
+        result: "0x0000000000000000000000000000000000000000000000000000000000000004",
+      });
+      return;
+    }
+  }
+  //original implementation
   callback = callback || function () {};
   if (!this.provider) {
     return callback(errors.InvalidProvider());
@@ -292,7 +330,7 @@ Manager.prototype.send = function (data, callback) {
   } else if (this.provider.send) {
     //console.log(jsonrpcPayload);
     this.provider.send(jsonrpcPayload, (error, data) => {
-     // console.log(JSON.stringify(data));
+      //console.log(JSON.stringify(data));
       jsonrpcResultCallback(error, data);
     });
   } else {

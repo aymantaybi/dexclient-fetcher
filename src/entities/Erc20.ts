@@ -4,14 +4,21 @@ import { Contract } from "web3-eth-contract";
 import { BaseEntity } from "../interfaces";
 import Erc20ABI from "../samples/contracts/Erc20.json";
 import { executeAsync } from "../helpers";
+import { Subscription } from "web3-core-subscriptions";
+import { Log } from "web3-core";
+import EventEmitter from "events";
+import { toChecksumAddress } from "web3-utils";
+import ABICoder from "web3-eth-abi";
 
-export default class implements BaseEntity {
+export default class extends EventEmitter implements BaseEntity {
   web3: Web3;
   address: string;
   contract: Contract;
   symbol!: string;
   decimals!: string;
+  subscription: Subscription<Log> | undefined;
   constructor(web3: Web3, address: string) {
+    super();
     this.web3 = web3;
     this.address = address;
     this.contract = new web3.eth.Contract(Erc20ABI as AbiItem[], this.address);
@@ -25,5 +32,21 @@ export default class implements BaseEntity {
     const [symbol, decimals]: [string, string] = await executeAsync(batch);
     [this.symbol, this.decimals] = [symbol, decimals];
     return { symbol, decimals };
+  }
+
+  subscribe(account: string) {
+    const accountChecksumAddress = toChecksumAddress(account);
+    const eventSignature = ABICoder.encodeEventSignature("Transfer(address,address,uint256)");
+    const address = this.address;
+    const topics = [eventSignature];
+    const options = { address, topics };
+    const callback = async (error, log: Log) => {
+      const from = ABICoder.decodeParameter("address", log.topics[1]) as unknown as string;
+      const to = ABICoder.decodeParameter("address", log.topics[2]) as unknown as string;
+      if (![from, to].includes(accountChecksumAddress)) return;
+      const balance = await this.contract.methods.balanceOf(account).call();
+      this.emit("balanceUpdate", { token: this.address, balance });
+    };
+    this.subscription = this.web3.eth.subscribe("logs", options, callback);
   }
 }

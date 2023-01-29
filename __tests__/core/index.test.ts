@@ -38,12 +38,12 @@ describe("Core", () => {
     expect(core.chainId).toEqual(2020);
   }, 0);
   it("should add an ERC20 token", async () => {
-    const busdAddress = "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56";
-    const busdToken = await core.erc20(busdAddress);
-    expect(busdToken.address).toEqual(busdAddress);
-    expect(busdToken.symbol).toEqual("BUSD");
-    expect(busdToken.decimals).toEqual("18");
-    expect(core.tokens.some((token) => token.address === busdAddress)).toBeTruthy();
+    const slpAddress = "0xa8754b9Fa15fc18BB59458815510E40a12cD2014";
+    const slpToken = await core.erc20(slpAddress);
+    expect(slpToken.address).toEqual(slpAddress);
+    expect(slpToken.symbol).toEqual("SLP");
+    expect(slpToken.decimals).toEqual("0");
+    expect(core.tokens.some((token) => token.address === slpAddress)).toBeTruthy();
   }, 0);
   it("should add a Pair", async () => {
     const BnxBusdAddress = "0xB72723e36a83FB5Fe1793f06b436F4720F5DE4F9";
@@ -62,7 +62,6 @@ describe("Core", () => {
   it("should subscribe to new block headers and return the full block object on every new block header", (done) => {
     core.subscribe();
     core.on("newBlock", (block) => {
-      //console.log(block);
       done();
       expect(block).not.toBeUndefined();
     });

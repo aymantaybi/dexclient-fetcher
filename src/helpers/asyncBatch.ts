@@ -8,6 +8,7 @@ export function executeAsync(batch: any): any {
     const formattedResults: unknown[] = [];
     batch.requestManager.sendBatch(requests, async function (err, results) {
       results = sortResponses(results);
+      //console.log(requests);
       requests
         .map(function (request, index) {
           return results[index] || {};

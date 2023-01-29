@@ -26,7 +26,7 @@ const logExemple = {
 };
 
 describe("Pair", () => {
-  it("should initialize the SLP-WETH Pair by adding it's address, symbol, token0, token1 & getReserves", async () => {
+  it("should initialize the SLP-WETH Pair by adding it's address, symbol, token0 & token1", async () => {
     await slpWethPair.initialize();
     expect(slpWethPair.address).toEqual(slpWethAddress);
     expect(slpWethPair.symbol).toEqual("SLP-WETH");

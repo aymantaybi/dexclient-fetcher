@@ -1,7 +1,9 @@
-jest.mock("web3-providers-ws"/* , () => {
+jest.mock(
+  "web3-providers-ws" /* , () => {
   const originalModule = jest.requireActual("web3-providers-ws");
   return originalModule;
-} */);
+} */
+);
 jest.mock("web3-core-requestmanager");
 
 import Web3 from "web3";

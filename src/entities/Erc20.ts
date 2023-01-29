@@ -1,16 +1,14 @@
-import Web3 from "web3";
-import { AbiItem } from "web3-utils";
-import { Contract } from "web3-eth-contract";
-import { BaseEntity } from "../interfaces";
-import Erc20ABI from "../samples/contracts/Erc20.json";
-import { executeAsync } from "../helpers";
-import { Subscription } from "web3-core-subscriptions";
-import { Log } from "web3-core";
 import EventEmitter from "events";
-import { toChecksumAddress } from "web3-utils";
+import Web3 from "web3";
+import { Log } from "web3-core";
+import { Subscription } from "web3-core-subscriptions";
 import ABICoder from "web3-eth-abi";
+import { Contract } from "web3-eth-contract";
+import { AbiItem, toChecksumAddress } from "web3-utils";
+import { executeAsync } from "../helpers";
+import Erc20ABI from "../samples/contracts/Erc20.json";
 
-export default class extends EventEmitter implements BaseEntity {
+export class Erc20 extends EventEmitter {
   web3: Web3;
   address: string;
   contract: Contract;
@@ -44,9 +42,15 @@ export default class extends EventEmitter implements BaseEntity {
       const from = ABICoder.decodeParameter("address", log.topics[1]) as unknown as string;
       const to = ABICoder.decodeParameter("address", log.topics[2]) as unknown as string;
       if (![from, to].includes(accountChecksumAddress)) return;
-      const balance = await this.contract.methods.balanceOf(account).call();
+      const balance: string = await this.contract.methods.balanceOf(account).call();
       this.emit("balanceUpdate", { token: this.address, balance });
     };
     this.subscription = this.web3.eth.subscribe("logs", options, callback);
   }
+}
+
+export default Erc20;
+
+export declare interface Erc20 {
+  on(event: "balanceUpdate", listener: (data: { token: string; balance: string }) => void): this;
 }

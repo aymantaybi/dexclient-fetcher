@@ -1,14 +1,14 @@
+import EventEmitter from "events";
 import Web3 from "web3";
-import { WebsocketProvider } from "web3-providers-ws";
 import { Subscription } from "web3-core-subscriptions";
-import { BlockHeader } from "web3-eth";
+import { BlockHeader, BlockTransactionObject } from "web3-eth";
+import { WebsocketProvider } from "web3-providers-ws";
+import { Erc20 } from "../entities/Erc20";
+import { Pair } from "../entities/Pair";
 import { isFetcherConstructorWebsocketProvider, isFetcherConstructorWebsocketProviderHost } from "../helpers";
 import { FetcherConstructor } from "../interfaces";
-import Erc20 from "../entities/Erc20";
-import Pair from "../entities/Pair";
-import EventEmitter from "events";
 
-export default class extends EventEmitter {
+export class Fetcher extends EventEmitter {
   websocketProvider: WebsocketProvider | undefined;
   web3: Web3;
   chainId!: number;
@@ -60,4 +60,10 @@ export default class extends EventEmitter {
     this.pairs.push(pair);
     return pair;
   }
+}
+
+export default Fetcher;
+
+export declare interface Fetcher {
+  on(event: "newBlock", listener: (data: BlockTransactionObject) => void): this;
 }

@@ -36,7 +36,7 @@ describe("Pair", () => {
   it("should subscribe to sync event", (done) => {
     slpWethPair.on("reservesUpdate", (data) => {
       done();
-      expect(data).toEqual({ reserve0: "2016955538", reserve1: "4034765436378654170588" });
+      expect(data).toEqual({ pair: slpWethAddress, reserve0: "2016955538", reserve1: "4034765436378654170588" });
     });
     const callback = slpWethPair.subscription?.callback as any;
     callback(null, logExemple);

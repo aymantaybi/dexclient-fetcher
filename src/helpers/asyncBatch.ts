@@ -1,5 +1,5 @@
-import Jsonrpc from "web3-core-requestmanager/src/jsonrpc";
 import { errors } from "web3-core-helpers";
+import Jsonrpc from "web3-core-requestmanager/src/jsonrpc";
 
 export function executeAsync(batch: any): any {
   return new Promise((resolve) => {

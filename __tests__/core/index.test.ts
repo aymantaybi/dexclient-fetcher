@@ -60,7 +60,6 @@ describe("Core", () => {
     expect(core.pairs.some((pair) => pair.address === BnxBusdAddress)).toBeTruthy();
   }, 0);
   it("should subscribe to new block headers and return the full block object on every new block header", (done) => {
-    core.subscribe();
     core.on("newBlock", (block) => {
       done();
       expect(block).not.toBeUndefined();

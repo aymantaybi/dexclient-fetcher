@@ -36,10 +36,11 @@ export default class extends EventEmitter implements BaseEntity {
     }
     const [symbol, token0, token1, { blockTimestampLast, reserve0, reserve1 }]: [string, string, string, Reserves] = await executeAsync(batch);
     [this.symbol, this.token0, this.token1, this.reserves] = [symbol, token0, token1, { blockTimestampLast, reserve0, reserve1 }];
+    this.subscribe();
     return { symbol, token0, token1, reserves: this.reserves };
   }
 
-  subscribe() {
+  private subscribe() {
     const eventSignature = this.web3.eth.abi.encodeEventSignature("Sync(uint112,uint112)");
     const options = { address: this.address, topics: [eventSignature] };
     const callback = (error, log: Log) => {

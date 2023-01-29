@@ -39,7 +39,6 @@ describe("Pair", () => {
     });
   }, 0);
   it("should subscribe to sync event", (done) => {
-    slpWethPair.subscribe();
     slpWethPair.on("reservesUpdate", (data) => {
       done();
       expect(data).toEqual({ reserve0: "2016955538", reserve1: "4034765436378654170588" });

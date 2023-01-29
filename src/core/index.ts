@@ -31,10 +31,11 @@ export default class extends EventEmitter {
   async initialize() {
     const chainId = await this.web3.eth.getChainId();
     this.chainId = chainId;
+    this.subscribe();
     return { chainId };
   }
 
-  subscribe() {
+  private subscribe() {
     const callback = async (error, blockHeader: BlockHeader) => {
       const block = await this.web3.eth.getBlock(blockHeader.number, true);
       this.emit("newBlock", block);

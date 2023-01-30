@@ -43,9 +43,10 @@ export class Erc20 extends EventEmitter {
       const to = ABICoder.decodeParameter("address", log.topics[2]) as unknown as string;
       if (![from, to].includes(accountChecksumAddress)) return;
       const balance: string = await this.contract.methods.balanceOf(account).call();
-      this.emit("balanceUpdate", { token: this.address, balance });
+      this.emit("balanceUpdate", { token: address, balance });
     };
-    this.subscription = this.web3.eth.subscribe("logs", options, callback);
+    this.subscription = this.subscription || this.web3.eth.subscribe("logs", options);
+    this.subscription.callback = callback as any;
   }
 }
 

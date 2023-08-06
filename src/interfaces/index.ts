@@ -1,11 +1,11 @@
-import { WebsocketProvider } from "web3-providers-ws";
+import { Web3BaseProvider } from "web3";
 
 export interface FetcherConstructorWebsocketProvider {
-  websocketProvider: WebsocketProvider;
+  websocketProvider: Web3BaseProvider;
 }
 
-export interface FetcherConstructorWebsocketProviderHost {
-  websocketProviderHost: string;
+export interface FetcherConstructorUrl {
+  url: string;
 }
 
-export type FetcherConstructor = FetcherConstructorWebsocketProvider | FetcherConstructorWebsocketProviderHost;
+export type FetcherConstructorParameters = FetcherConstructorWebsocketProvider | FetcherConstructorUrl;

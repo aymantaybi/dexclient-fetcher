@@ -1,52 +1,80 @@
 import EventEmitter from "events";
-import Web3 from "web3";
-import { Log } from "web3-core";
-import { Subscription } from "web3-core-subscriptions";
-import ABICoder from "web3-eth-abi";
-import { Contract } from "web3-eth-contract";
-import { AbiItem, toChecksumAddress } from "web3-utils";
-import { executeAsync } from "../helpers";
-import Erc20ABI from "../samples/contracts/Erc20.json";
+import { JsonRpcOptionalRequest, Log } from "web3";
+import { decodeParameter, encodeEventSignature } from "web3-eth-abi";
+import { Contract, Web3 } from "web3";
+import { toChecksumAddress } from "web3-utils";
+import { LogsSubscription } from "web3/lib/commonjs/eth.exports";
+import { Erc20Contract } from "../contracts";
+import { createRequest } from "../helpers";
 
 export class Erc20 extends EventEmitter {
   web3: Web3;
   address: string;
-  contract: Contract;
+  contract: Contract<typeof Erc20Contract.ABI>;
   symbol!: string;
   decimals!: string;
-  subscription: Subscription<Log> | undefined;
+  subscription: LogsSubscription | undefined;
   constructor(web3: Web3, address: string) {
     super();
     this.web3 = web3;
     this.address = address;
-    this.contract = new web3.eth.Contract(Erc20ABI as AbiItem[], this.address);
+    this.contract = new Contract(Erc20Contract.ABI, this.address, this.web3);
   }
   async initialize() {
     const batch = new this.web3.BatchRequest();
-    const methods = [this.contract.methods.symbol().call.request(), this.contract.methods.decimals().call.request()];
-    for (const method of methods) {
-      batch.add(method);
+    const requests: JsonRpcOptionalRequest[] = [
+      createRequest(
+        "eth_call",
+        [
+          {
+            from: null,
+            to: this.address,
+            data: this.contract.methods.symbol().encodeABI(),
+          },
+          "latest",
+        ],
+        1
+      ),
+      createRequest(
+        "eth_call",
+        [
+          {
+            from: null,
+            to: this.address,
+            data: this.contract.methods.decimals().encodeABI(),
+          },
+          "latest",
+        ],
+        2
+      ),
+    ];
+    for (const request of requests) {
+      batch.add(request);
     }
-    const [symbol, decimals]: [string, string] = await executeAsync(batch);
+    const batchResponse = await batch.execute();
+    const symbol = decodeParameter("string", batchResponse[0].result as string) as string;
+    const decimals = decodeParameter("uint8", batchResponse[1].result as string) as string;
     [this.symbol, this.decimals] = [symbol, decimals];
     return { symbol, decimals };
   }
 
-  subscribe(account: string) {
+  async subscribe(account: string) {
+    if (this.subscription) return;
     const accountChecksumAddress = toChecksumAddress(account);
-    const eventSignature = ABICoder.encodeEventSignature("Transfer(address,address,uint256)");
+    const eventSignature = encodeEventSignature("Transfer(address,address,uint256)");
     const address = this.address;
     const topics = [eventSignature];
     const options = { address, topics };
-    const callback = async (error, log: Log) => {
-      const from = ABICoder.decodeParameter("address", log.topics[1]) as unknown as string;
-      const to = ABICoder.decodeParameter("address", log.topics[2]) as unknown as string;
+    const callback = async (log: Log) => {
+      if (!log.topics) return;
+      const from = decodeParameter("address", log.topics[1].toString()) as string;
+      const to = decodeParameter("address", log.topics[2].toString()) as string;
       if (![from, to].includes(accountChecksumAddress)) return;
       const balance: string = await this.contract.methods.balanceOf(account).call();
       this.emit("balanceUpdate", { token: address, balance });
     };
-    this.subscription = this.subscription || this.web3.eth.subscribe("logs", options);
-    this.subscription.callback = callback as any;
+    this.subscription = await this.web3.eth.subscribe("logs", options);
+    this.subscription.on("data", callback);
   }
 }
 
@@ -54,4 +82,5 @@ export default Erc20;
 
 export declare interface Erc20 {
   on(event: "balanceUpdate", listener: (data: { token: string; balance: string }) => void): this;
+  emit(eventName: "balanceUpdate", data: { token: string; balance: string }): boolean;
 }

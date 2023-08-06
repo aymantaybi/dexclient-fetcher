@@ -1,46 +1,44 @@
 import EventEmitter from "events";
-import Web3 from "web3";
-import { Subscription } from "web3-core-subscriptions";
-import { BlockHeader, BlockTransactionObject } from "web3-eth";
-import { WebsocketProvider } from "web3-providers-ws";
-import { Erc20 } from "../entities/Erc20";
-import { Pair } from "../entities/Pair";
-import { isFetcherConstructorWebsocketProvider, isFetcherConstructorWebsocketProviderHost } from "../helpers";
-import { FetcherConstructor } from "../interfaces";
+import Web3, { BlockHeaderOutput, Web3BaseProvider, BlockOutput } from "web3";
+import { Erc20, Pair } from "../entities";
+import { isFetcherConstructorWebsocketProvider } from "../helpers";
+import { FetcherConstructorParameters } from "../interfaces";
+import { NewHeadsSubscription } from "web3/lib/commonjs/eth.exports";
 
 export class Fetcher extends EventEmitter {
-  websocketProvider: WebsocketProvider | undefined;
+  websocketProvider: Web3BaseProvider | undefined;
   web3: Web3;
-  chainId!: number;
+  chainId!: bigint;
   tokens: Erc20[] = [];
   pairs: Pair[] = [];
-  subscription: Subscription<BlockHeader> | undefined;
-  constructor(fetcherConstructor: FetcherConstructor) {
+  subscription: NewHeadsSubscription | undefined;
+  constructor(fetcherConstructorParameters: FetcherConstructorParameters) {
     super();
-    if (isFetcherConstructorWebsocketProvider(fetcherConstructor)) {
-      const { websocketProvider } = fetcherConstructor;
+    if (isFetcherConstructorWebsocketProvider(fetcherConstructorParameters)) {
+      const { websocketProvider } = fetcherConstructorParameters;
       this.websocketProvider = websocketProvider;
-    } else if (isFetcherConstructorWebsocketProviderHost(fetcherConstructor)) {
-      const { websocketProviderHost } = fetcherConstructor;
-      this.websocketProvider = new Web3.providers.WebsocketProvider(websocketProviderHost);
+    } else {
+      const { url } = fetcherConstructorParameters;
+      this.websocketProvider = new Web3.providers.WebsocketProvider(url);
     }
-    if (!this.websocketProvider) throw Error("Either WebsocketProvider OR WebsocketProviderHost should be provided");
     this.web3 = new Web3(this.websocketProvider);
   }
 
   async initialize() {
     const chainId = await this.web3.eth.getChainId();
     this.chainId = chainId;
-    this.subscribe();
+    await this.subscribe();
     return { chainId };
   }
 
-  private subscribe() {
-    const callback = async (error, blockHeader: BlockHeader) => {
+  private async subscribe() {
+    if (this.subscription) return;
+    const callback = async (blockHeader: BlockHeaderOutput) => {
       const block = await this.web3.eth.getBlock(blockHeader.number, true);
-      this.emit("newBlock", block);
+      this.emit("newBlock", block as BlockOutput);
     };
-    this.subscription = this.web3.eth.subscribe("newBlockHeaders", callback);
+    this.subscription = await this.web3.eth.subscribe("newBlockHeaders");
+    this.subscription.on("data", callback);
   }
 
   async erc20(address: string) {
@@ -65,5 +63,6 @@ export class Fetcher extends EventEmitter {
 export default Fetcher;
 
 export declare interface Fetcher {
-  on(event: "newBlock", listener: (data: BlockTransactionObject) => void): this;
+  on(event: "newBlock", listener: (data: BlockOutput) => void): this;
+  emit(eventName: "newBlock", data: BlockOutput): boolean;
 }

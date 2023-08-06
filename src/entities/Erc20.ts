@@ -32,8 +32,7 @@ export class Erc20 extends EventEmitter {
             data: this.contract.methods.symbol().encodeABI(),
           },
           "latest",
-        ],
-        1
+        ]
       ),
       createRequest(
         "eth_call",
@@ -44,8 +43,7 @@ export class Erc20 extends EventEmitter {
             data: this.contract.methods.decimals().encodeABI(),
           },
           "latest",
-        ],
-        2
+        ]
       ),
     ];
     for (const request of requests) {

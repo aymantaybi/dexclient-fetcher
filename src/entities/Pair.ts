@@ -32,8 +32,7 @@ export class Pair extends EventEmitter {
             data: this.contract.methods.symbol().encodeABI(),
           },
           "latest",
-        ],
-        1
+        ]
       ),
       createRequest(
         "eth_call",
@@ -44,8 +43,7 @@ export class Pair extends EventEmitter {
             data: this.contract.methods.token0().encodeABI(),
           },
           "latest",
-        ],
-        2
+        ]
       ),
       createRequest(
         "eth_call",
@@ -56,8 +54,7 @@ export class Pair extends EventEmitter {
             data: this.contract.methods.token1().encodeABI(),
           },
           "latest",
-        ],
-        3
+        ]
       ),
     ];
     for (const request of requests) {
@@ -81,7 +78,7 @@ export class Pair extends EventEmitter {
       if (!hexString) return;
       const decodedParameters = this.web3.eth.abi.decodeParameters(["uint112", "uint112"], hexString?.toString()) as unknown as [string, string];
       const [reserve0, reserve1]: [string, string] = [decodedParameters[0], decodedParameters[1]];
-      this.emit("reservesUpdate", { pair: this.address, reserve0, reserve1 });
+      this.emit("reservesUpdate", { pair: this.address, reserve0, reserve1, transactionHash: log.transactionHash?.toString() });
     };
     this.subscription = await this.web3.eth.subscribe("logs", options);
     this.subscription.on("data", callback);
@@ -91,6 +88,6 @@ export class Pair extends EventEmitter {
 export default Pair;
 
 export declare interface Pair {
-  on(event: "reservesUpdate", listener: (data: { pair: string; reserve0: string; reserve1: string }) => void): this;
-  emit(eventName: "reservesUpdate", data: { pair: string; reserve0: string; reserve1: string }): boolean;
+  on(event: "reservesUpdate", listener: (data: { pair: string; reserve0: string; reserve1: string; transactionHash?: string }) => void): this;
+  emit(eventName: "reservesUpdate", data: { pair: string; reserve0: string; reserve1: string; transactionHash?: string }): boolean;
 }

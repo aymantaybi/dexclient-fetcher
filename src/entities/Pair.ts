@@ -18,44 +18,35 @@ export class Pair extends EventEmitter {
     super();
     this.web3 = web3;
     this.address = address;
-    this.contract = new Contract(PairContract.ABI, this.address);
+    this.contract = new Contract(PairContract.ABI, this.address, this.web3);
   }
   async initialize() {
     const batch = new this.web3.BatchRequest();
     const requests: JsonRpcOptionalRequest[] = [
-      createRequest(
-        "eth_call",
-        [
-          {
-            from: null,
-            to: this.address,
-            data: this.contract.methods.symbol().encodeABI(),
-          },
-          "latest",
-        ]
-      ),
-      createRequest(
-        "eth_call",
-        [
-          {
-            from: null,
-            to: this.address,
-            data: this.contract.methods.token0().encodeABI(),
-          },
-          "latest",
-        ]
-      ),
-      createRequest(
-        "eth_call",
-        [
-          {
-            from: null,
-            to: this.address,
-            data: this.contract.methods.token1().encodeABI(),
-          },
-          "latest",
-        ]
-      ),
+      createRequest("eth_call", [
+        {
+          from: null,
+          to: this.address,
+          data: this.contract.methods.symbol().encodeABI(),
+        },
+        "latest",
+      ]),
+      createRequest("eth_call", [
+        {
+          from: null,
+          to: this.address,
+          data: this.contract.methods.token0().encodeABI(),
+        },
+        "latest",
+      ]),
+      createRequest("eth_call", [
+        {
+          from: null,
+          to: this.address,
+          data: this.contract.methods.token1().encodeABI(),
+        },
+        "latest",
+      ]),
     ];
     for (const request of requests) {
       batch.add(request);
